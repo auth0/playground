@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/codemirror.min.css" type="text/css" media="all" />
+     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/theme/blackboard.min.css" type="text/css" media="all" />
+     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" type="text/css" media="all" />
+     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/addon/hint/show-hint.css" type="text/css" media="all" />
+     <style>
+        #editor {
+          height: 100%;
+        }
+        #preview {
+          height: 100%;
+        }
+
+        html, body, .container, .row {
+          height: 100%;
+        }
+
+        iframe {
+          border: 0;
+          padding: 0;
+          margin: 0;
+        }
+
+        .CodeMirror {
+          height: 100%;
+          padding: 10px;
+        }
+
+
+     </style>
+  </head>
+  <body class="container-fluid">
+  <div class="row">
+    <div id="editor" class="col-sm-6">
+    </div>
+    <iframe id="preview" class="col-sm-6">
+    </iframe>
+  </div>
+  <!-- <button onclick="f()"  style="display: absolute; top: 0; height: 10px;"/> -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/codemirror.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/mode/javascript/javascript.min.js"></script>
+    <script src="http://esprima.org/esprima.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script src="https://constellation.github.io/escodegen/escodegen.browser.js"></script>
+    <!-- <script src="https://github.com/niklasvh/html2canvas/releases/download/0.4.1/html2canvas.js"></script> -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/addon/hint/show-hint.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/addon/hint/javascript-hint.min.js" type="text/javascript" charset="utf-8"></script>
+
+        <script>
+
+//function f () {
+//html2canvas(document.body, {
+//    onrendered: function(canvas) {
+//           document.body.appendChild( canvas );
+//    }
+//});
+//  return false;
+//
+//}
+
+
+    var editor = CodeMirror(document.getElementById('editor'), {
+      mode: 'javascript',
+      lineWrapping: true,
+      extraKeys: {"Ctrl-Space": "autocomplete", useGlobalScope: false, globalVars: true},
+    });
+
+    var preview = document.getElementById('preview').contentWindow;
+    var oldCode;
+
+    if (localStorage.text) {
+      editor.setValue(localStorage.text);
+    }
+
+    var errored = false;
+    function onChange(instance) {
+      try {
+        var code = instance.getValue();
+        var syntax = esprima.parse(code, { tolerant: true, loc: true });
+        var errors = syntax.errors;
+
+        if (oldCode === undefined) {
+          oldCode = code;
+        }
+
+        if(!errors.length) {
+          localStorage.text = code;
+          code = escodegen.generate(syntax);
+          if (code === oldCode && !errored) {
+            return;
+          }
+          console.log('here');
+          document.getElementById('preview').src = "about:blank";
+          //document.getElementById('preview').src = "/empty.html";
+            var val = 'document.write("<!DOCTYPE html> <html> <head> <title><\/title>  <script src=\\\"\/\/cdn.auth0.com\/js\/lock-6.min.js\\\"><\/script>  <\/head> <body> <script> " + ' + JSON.stringify(code) + ' + " <\/script><\/body> <\/html>");';
+          console.log(val);
+          setTimeout(function () { 
+              preview.eval(val); 
+          });
+          oldCode = code;
+        } else {
+        document.getElementById('preview').src = "about:blank";
+        var val = 'document.write("<!DOCTYPE html> <html> <head> <title><\/title> <\/head> <body> <pre> ' + errors.length + ' <\/pre><\/body> <\/html>");';
+        console.log('err', val);
+        errored = true;
+          setTimeout(function () { preview.eval(val); });
+        }
+      } catch (e) {
+        //document.getElementById('preview').src = "/empty.html";
+        document.getElementById('preview').src = "about:blank";
+        var val = 'document.write("<!DOCTYPE html> <html> <head> <title><\/title> <\/head> <body> <pre> ' + e + ' <\/pre><\/body> <\/html>");';
+        console.log('err', val);
+        errored = true;
+          setTimeout(function () { preview.eval(val); });
+        //console.log(e);
+        //setTimeout(function () {
+        //  preview.eval('document.write("' + e + '");');
+        //}, 0);
+      }
+    }
+
+    window.addEventListener('load', function () { onChange(editor); } );
+
+    editor.on('change', _.debounce(onChange, 500));
+    </script>
+  </body>
+</html>
