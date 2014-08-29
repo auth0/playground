@@ -73,6 +73,8 @@
 
     if (localStorage.text) {
       editor.setValue(localStorage.text);
+    } else {
+      editor.setValue("var domain = 'mdocs.auth0.com';\nvar cid = '0HP71GSd6PuoRYJ3DXKdiXCUUdGmBbup';\n\nvar widget = new Auth0Lock(cid, domain);\n\n\twidget.show({\n\t  focusInput: false,\n      popup: true,\n\t}, function (err, profile, token) {\n\t\talert(err);\n\t});");
     }
 
     var errored = false;
