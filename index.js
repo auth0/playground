@@ -38,8 +38,8 @@ function onChange(instance) {
       //document.getElementById('preview').src = "/empty.html";
       var val = 'document.write("<!DOCTYPE html> <html> <head> <title><\/title>  <script src=\\\"\/\/cdn.auth0.com\/js\/lock-6.min.js\\\"><\/script>  <\/head> <body> <script> " + ' + JSON.stringify(code) + ' + " <\/script><\/body> <\/html>");';
       console.log(val);
-      setTimeout(function () { 
-        preview.eval(val); 
+      setTimeout(function () {
+        preview.eval(val);
       });
       oldCode = code;
     } else {
