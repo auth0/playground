@@ -1,7 +1,7 @@
 var editor = CodeMirror(document.getElementById('editor'), {
   mode: 'javascript',
   lineWrapping: true,
-  lineNumbers: true,
+  lineNumbers: JSON.parse(localStorage.lineNumbers || 'false'),
   extraKeys: {"Ctrl-Space": "autocomplete", useGlobalScope: false, globalVars: true},
 });
 
