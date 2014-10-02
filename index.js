@@ -10,12 +10,15 @@ var editor = codeMirror(document.getElementById('editor'), {
 var preview = document.getElementById('preview').contentWindow;
 var oldCode;
 
-var startTemplate = _.template('var domain = \'mdocs.auth0.com\';\nvar cid = \'yKJO1ckwuY1X8gPEhTRfhJXyObfiLxih\';\n\nvar widget = new Auth0Lock(cid, domain);\n\n\twidget.show({\n\t  focusInput: false,\n      popup: true,\n\t}, function (err, profile, token) {\n\t\talert(err);\n\t});');
+var startTemplate = _.template('var domain = \'mdocs.auth0.com\';\nvar cid = \'yKJO1ckwuY1X8gPEhTRfhJXyObfiLxih\';\n\nvar widget = new Auth0Lock(cid, domain);\n\n  widget.show({\n  focusInput: false,\n      popup: true,\n  }, function (err, profile, token) {\n    alert(err);\n  });');
 
-var scriptTemplate = _.template('document.write("<!DOCTYPE html> <html> <head> <title><\/title>  <script src=\\\"\/\/cdn.auth0.com\/js\/lock-6.min.js\\\"><\/script>  <\/head> <body> <script> " + <%= code %> + " <\/script><\/body> <\/html>");');
+var scriptTemplate = _.template('document.write("<!DOCTYPE html> <html> <head> <title><\/title> " + <%= scripts %> + "   <\/head> <body> <script> " + <%= code %> + " <\/script><\/body> <\/html>");');
 
 var errorTemplate = _.template('document.write("<!DOCTYPE html> <html> <head> <title><\/title> <\/head> <body> <pre> <%= error %> <\/pre><\/body> <\/html>");');
 
+var scriptTagTemplate = function (src) {
+  return _.template('<script src=\"<%= src %>\"><\/script>')({src: src});
+};
 
 if (localStorage.text) {
   editor.setValue(localStorage.text);
@@ -24,11 +27,12 @@ if (localStorage.text) {
 }
 
 
-function setCode(code) {
+function setCode(code, scripts) {
   document.getElementById('preview').src = 'about:blank';
   //document.getElementById('preview').src = "/empty.html";
   setTimeout(function () {
-    var val = scriptTemplate({code: JSON.stringify(code)});
+    var scriptsAsText = scripts.map(scriptTagTemplate).join('');
+    var val = scriptTemplate({code: JSON.stringify(code), scripts: JSON.stringify(scriptsAsText)});
     preview.eval(val);
   });
 }
@@ -47,6 +51,10 @@ function onChange(instance) {
     var code = instance.getValue();
     var syntax = esprima.parse(code, { tolerant: true, loc: true });
     var errors = syntax.errors;
+    var scripts = [
+      '//cdn.auth0.com/js/lock-6.min.js',
+      'https://code.jquery.com/jquery-1.11.1.min.js'
+    ];
 
     if (oldCode === undefined) { oldCode = code; }
 
@@ -56,7 +64,7 @@ function onChange(instance) {
       if (code === oldCode && !errored) {
         return;
       }
-      setCode(code);
+      setCode(code, scripts);
       oldCode = code;
     } else {
       setError(errors);
