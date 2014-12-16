@@ -1,23 +1,26 @@
+
 var codeMirror = CodeMirror;
 
-var editor = codeMirror(document.getElementById('editor'), {
+var editor = codeMirror(document.querySelector('.js-editor'), {
   mode: 'javascript',
   lineWrapping: true,
   lineNumbers: JSON.parse(localStorage.lineNumbers || 'false'),
   extraKeys: {'Ctrl-Space': 'autocomplete', useGlobalScope: false, globalVars: true},
 });
 
-var preview = document.getElementById('preview').contentWindow;
+var previewEl = document.querySelector('.js-preview');
+var errored = false;
 var oldCode;
 
-var startTemplate = _.template('var domain = \'mdocs.auth0.com\';\nvar cid = \'yKJO1ckwuY1X8gPEhTRfhJXyObfiLxih\';\n\nvar widget = new Auth0Lock(cid, domain);\n\n  widget.show({\n  focusInput: false,\n      popup: true,\n  }, function (err, profile, token) {\n    alert(err);\n  });');
+var startTemplate = _.template('var domain = \'mdocs.auth0.com\';\nvar cid = \'yKJO1ckwuY1X8gPEhTRfhJXyObfiLxih\';\n\nvar widget = new Auth0Lock(cid, domain);\n\nwidget.show({\n  focusInput: false,\n  popup: true,\n}, function (err, profile, token) {\n  alert(err);\n});');
 
-var scriptTemplate = _.template('document.write("<!DOCTYPE html> <html> <head> <title><\/title> " + <%= scripts %> + "   <\/head> <body> <script> " + <%= code %> + " <\/script><\/body> <\/html>");');
+var scriptTemplate = _.template('<!DOCTYPE html> <html> <head> <title><\/title> <%= scripts %> <\/head> <body><script>window.onerror = function (e, _, line) { parent.postMessage(JSON.stringify({msg: e, line: line}), \'*\'); };<\/script> <script><%= code %><\/script><\/body> <\/html>');
 
-var errorTemplate = _.template('document.write("<!DOCTYPE html> <html> <head> <title><\/title> <\/head> <body> <pre> <%= error %> <\/pre><\/body> <\/html>");');
+var errorTemplate = _.template('<!DOCTYPE html> <html> <head> <title><\/title> <\/head> <body> <pre><%= error %><\/pre><\/body> <\/html>');
+
 
 var scriptTagTemplate = function (src) {
-  return _.template('<script src=\"<%= src %>\"><\/script>')({src: src});
+  return _.template('<script src="<%= src %>"><\/script>')({src: src});
 };
 
 if (localStorage.text) {
@@ -26,26 +29,34 @@ if (localStorage.text) {
   editor.setValue(startTemplate({}));
 }
 
+function setError(error) {
+  previewEl.src = 'about:blank';
+  previewEl.onload = function () {
+    var val = errorTemplate({error: error});
+    previewEl.contentDocument.open();
+    previewEl.contentDocument.writeln(val);
+    previewEl.contentDocument.close();
+  };
+}
+
+window.addEventListener('message', function (e) {
+  var error = JSON.parse(e.data);
+  setError(JSON.stringify(error.msg) + ' in line: ' + error.line);
+  errored = true;
+}, false);
 
 function setCode(code, scripts) {
-  document.getElementById('preview').src = 'about:blank';
-  //document.getElementById('preview').src = "/empty.html";
-  setTimeout(function () {
+  previewEl.onload = function () {
     var scriptsAsText = scripts.map(scriptTagTemplate).join('');
-    var val = scriptTemplate({code: JSON.stringify(code), scripts: JSON.stringify(scriptsAsText)});
-    preview.eval(val);
-  });
+    var val = scriptTemplate({code: code, scripts: scriptsAsText});
+    previewEl.contentDocument.open();
+    previewEl.contentDocument.writeln(val);
+    previewEl.contentDocument.close();
+  };
+  previewEl.src = 'about:blank';
+  //document.getElementById('preview').src = "/empty.html";
 }
 
-function setError(error) {
-  document.getElementById('preview').src = 'about:blank';
-  setTimeout(function () {
-    var val = errorTemplate({error: error});
-    preview.eval(val);
-  });
-}
-
-var errored = false;
 function onChange(instance) {
   try {
     var code = instance.getValue();
