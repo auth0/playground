@@ -32,6 +32,7 @@ if (localStorage.text) {
 function setError(error) {
   previewEl.src = 'about:blank';
   previewEl.onload = function () {
+    previewEl.onload = null;
     var val = errorTemplate({error: error});
     previewEl.contentDocument.open();
     previewEl.contentDocument.writeln(val);
@@ -47,6 +48,7 @@ window.addEventListener('message', function (e) {
 
 function setCode(code, scripts) {
   previewEl.onload = function () {
+    previewEl.onload = null;
     var scriptsAsText = scripts.map(scriptTagTemplate).join('');
     var val = scriptTemplate({code: code, scripts: scriptsAsText});
     previewEl.contentDocument.open();
