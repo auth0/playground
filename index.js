@@ -12,7 +12,7 @@ var previewEl = document.querySelector('.js-preview');
 var errored = false;
 var oldCode;
 
-var startTemplate = _.template('var domain = \'mdocs.auth0.com\';\nvar cid = \'yKJO1ckwuY1X8gPEhTRfhJXyObfiLxih\';\n\nvar widget = new Auth0Lock(cid, domain);\n\nwidget.show({\n  focusInput: false,\n  popup: true,\n}, function (err, profile, token) {\n  alert(err);\n});');
+var startTemplate = _.template('var domain = \'contoso.auth0.com\';\nvar cid = \'DyG9nCwIEofSy66QM3oo5xU6NFs3TmvT\';\n\nvar widget = new Auth0Lock(cid, domain);\n\nwidget.show({\n  focusInput: false,\n  popup: true,\n}, function (err, profile, token) {\n  alert(err);\n});');
 
 var scriptTemplate = _.template('<!DOCTYPE html> <html> <head> <title><\/title> <%= scripts %> <\/head> <body><script>window.onerror = function (e, _, line) { parent.postMessage(JSON.stringify({msg: e, line: line}), \'*\'); };<\/script> <script><%= code %><\/script><\/body> <\/html>');
 
