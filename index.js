@@ -65,7 +65,7 @@ function onChange(instance) {
     var syntax = esprima.parse(code, { tolerant: true, loc: true });
     var errors = syntax.errors;
     var scripts = [
-      '//cdn.auth0.com/js/lock-6.min.js',
+      '//cdn.auth0.com/js/lock-7.min.js',
       'https://code.jquery.com/jquery-1.11.1.min.js'
     ];
 
