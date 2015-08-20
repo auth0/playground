@@ -19,4 +19,6 @@ iframe {
   height: 100%;
 }
 
-
+.site-header {
+  padding: 10px 0;
+}
