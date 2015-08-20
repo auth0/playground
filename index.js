@@ -91,4 +91,4 @@ function onChange(instance) {
 
 window.addEventListener('load', function () { onChange(editor); } );
 
-editor.on('change', _.debounce(onChange, 500));
+editor.on('change', _.debounce(onChange, 650));
