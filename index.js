@@ -59,13 +59,13 @@ function setCode(code, scripts) {
   //document.getElementById('preview').src = "/empty.html";
 }
 
-function onChange(instance) {
+function onChange(instance, force) {
   try {
     var code = instance.getValue();
     var syntax = esprima.parse(code, { tolerant: true, loc: true });
     var errors = syntax.errors;
     var scripts = [
-      '//cdn.auth0.com/js/lock-7.min.js',
+      currentVersionScript(),
       'https://code.jquery.com/jquery-1.11.1.min.js'
     ];
 
@@ -74,7 +74,7 @@ function onChange(instance) {
     if(!errors.length) {
       localStorage.text = code;
       code = escodegen.generate(syntax);
-      if (code === oldCode && !errored) {
+      if (!force && (code === oldCode && !errored)) {
         return;
       }
       setCode(code, scripts);
@@ -89,6 +89,39 @@ function onChange(instance) {
   }
 }
 
-window.addEventListener('load', function () { onChange(editor); } );
+function currentVersionScript() {
+  return $('.version-select').val();
+}
+
+function processGithubTagsResponse(response) {
+  var releases = _(response).map(function(x) {
+    return x.name;
+  }).filter(function(x) {
+    return /v\d+\.\d+\.\d+/.test(x);
+  }).map(function(x) {
+    return {
+      version: x,
+      url: "//cdn.auth0.com/js/lock-" + x.slice(1) + ".min.js"
+    };
+  }).value();
+
+  var select = $(".version-select");
+  select.removeAttr("disabled");
+  select.on("change", function() {
+    var parent = $(previewEl).parent();
+    $(previewEl).detach();
+    parent.append("<iframe class='col-sm-6 js-preview preview'> </iframe>");
+    previewEl = $('.js-preview').get(0);
+    onChange(editor, true);
+  });
+
+  select.empty().append(_.map(releases, function(x) {
+    return "<option value='" + x.url + "'>" + x.version + "</option>";
+  }).join(' '));
+
+  onChange(editor);
+}
+
+$.getJSON("https://api.github.com/repos/auth0/lock/tags", processGithubTagsResponse);
 
 editor.on('change', _.debounce(onChange, 650));
