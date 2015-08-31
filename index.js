@@ -65,8 +65,7 @@ function onChange(instance) {
     var syntax = esprima.parse(code, { tolerant: true, loc: true });
     var errors = syntax.errors;
     var scripts = [
-      '//cdn.auth0.com/js/lock-7.min.js',
-      'https://code.jquery.com/jquery-1.11.1.min.js'
+      document.querySelector('.js-lock-url').value
     ];
 
     if (oldCode === undefined) { oldCode = code; }
@@ -74,9 +73,6 @@ function onChange(instance) {
     if(!errors.length) {
       localStorage.text = code;
       code = escodegen.generate(syntax);
-      if (code === oldCode && !errored) {
-        return;
-      }
       setCode(code, scripts);
       oldCode = code;
     } else {
@@ -92,3 +88,4 @@ function onChange(instance) {
 window.addEventListener('load', function () { onChange(editor); } );
 
 editor.on('change', _.debounce(onChange, 500));
+document.querySelector('.js-lock-url').addEventListener('input', function () { onChange(editor); });

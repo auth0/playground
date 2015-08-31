@@ -11,7 +11,12 @@
   </head>
   <body class="container-fluid">
   <div class="row">
-    <div class="col-sm-6 js-editor editor"> </div>
+    <div class="col-sm-6">
+      <form>
+        <input type="text" class="js-lock-url lock-url" value="//cdn.auth0.com/js/lock-7.js" placeholder="Type lock url here" title="Lock URL" />
+      </form>
+      <div class="js-editor editor"></div>
+    </div>
     <iframe class="col-sm-6 js-preview preview"> </iframe>
   </div>
     <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/codemirror.min.js"></script>

@@ -19,4 +19,9 @@ iframe {
   height: 100%;
 }
 
-
+.lock-url {
+  margin: 15px 5%;
+  padding: 5px;
+  width: 90%;
+  font-family: monospace;
+}
