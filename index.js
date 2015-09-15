@@ -23,12 +23,6 @@ var scriptTagTemplate = function (src) {
   return _.template('<script src="<%= src %>"><\/script>')({src: src});
 };
 
-if (localStorage.text) {
-  editor.setValue(localStorage.text);
-} else {
-  editor.setValue(startTemplate({}));
-}
-
 function setError(error) {
   previewEl.src = 'about:blank';
   previewEl.onload = function () {
@@ -72,7 +66,7 @@ function onChange(instance, force) {
     if (oldCode === undefined) { oldCode = code; }
 
     if(!errors.length) {
-      localStorage.text = code;
+      localStorage.code[currentRelease.lib] = code;
       code = escodegen.generate(syntax);
       if (!force && (code === oldCode && !errored)) {
         return;
@@ -100,6 +94,7 @@ var lockSelect = $(".lock-select");
 var versionSelect = $(".version-select");
 var libs = ["lock", "lock-passwordless"];
 var versions = {};
+var currentRelease = {};
 
 function extractVersionsFromGithubTagsResponse(response) {
   return _(response).map(function(x) {
@@ -128,10 +123,21 @@ function start() {
     versionSelect.empty().append(_.map(versions[lib], function(version) {
       return selectOptionString(lib, version);
     }).join(' '));
+    if (lib !== currentRelease.lib) {
+      if (!localStorage.code) localStorage.code = {};
+      if (localStorage.code[lib]) {
+        editor.setValue(localStorage.code[lib]);
+      } else {
+        editor.setValue(startTemplate({}));
+      }
+    }
+    currentRelease.lib = lib;
   });
 
   versionSelect.removeAttr("disabled");
   versionSelect.on("change", function(event) {
+    currentRelease.version = $("option:selected", event.target).data("version");
+
     var parent = $(previewEl).parent();
     $(previewEl).detach();
     parent.append("<iframe class='js-preview preview'> </iframe>");
@@ -145,7 +151,7 @@ function start() {
 
 function selectOptionString(lib, version) {
   var url = "//cdn.auth0.com/js/" + lib + "-" + version.slice(1) + ".min.js";
-  return "<option value='" + url + "'>" + version + "</option>";
+  return "<option value='" + url + "' data-version='" + version + "'>" + version + "</option>";
 }
 
 _.each(libs, function(lib) {
