@@ -36,7 +36,7 @@
   height: calc(100% - 54px);
 }
 
-html, body, .container {
+html, body {
   height: 100%;
 }
 
@@ -51,6 +51,25 @@ iframe {
   height: 100%;
 }
 
-.site-header {
+header.site-header.site-header {
+  background-color: #fff;
   padding: 10px 0;
+  position: relative;
+}
+
+.container {
+  max-width: none;
+}
+
+li.li-locks {
+  line-height: 50px;
+}
+
+.lock-select {
+  margin-left: 15px;
+}
+@media screen and (max-width: 990px) {
+  header.site-header li.li-locks:last-child {
+    border-bottom: 1px solid #f1f1f1;
+  }
 }
