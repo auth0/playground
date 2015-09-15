@@ -94,8 +94,6 @@ function currentVersionScript() {
   return $('.version-select').val();
 }
 
-editor.on('change', _.debounce(onChange, 650));
-
 
 var lockSelect = $(".lock-select");
 var versionSelect = $(".version-select");
@@ -154,6 +152,8 @@ function start() {
 
   lockSelect.trigger("change");
   versionSelect.trigger("change");
+
+  editor.on('change', _.debounce(onChange, 650));
 }
 
 function selectOptionString(lib, version) {
