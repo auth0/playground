@@ -93,21 +93,45 @@ function currentVersionScript() {
   return $('.version-select').val();
 }
 
-function processGithubTagsResponse(response) {
-  var releases = _(response).map(function(x) {
+editor.on('change', _.debounce(onChange, 650));
+
+
+var lockSelect = $(".lock-select");
+var versionSelect = $(".version-select");
+var libs = ["lock", "lock-passwordless"];
+var versions = {};
+
+function extractVersionsFromGithubTagsResponse(response) {
+  return _(response).map(function(x) {
     return x.name;
   }).filter(function(x) {
     return /v\d+\.\d+\.\d+/.test(x);
-  }).map(function(x) {
-    return {
-      version: x,
-      url: "//cdn.auth0.com/js/lock-" + x.slice(1) + ".min.js"
-    };
   }).value();
+}
 
-  var select = $(".version-select");
-  select.removeAttr("disabled");
-  select.on("change", function() {
+function processGithubTagsResponse(lib, response) {
+  versions[lib] = extractVersionsFromGithubTagsResponse(response);
+
+  var allVersionsLoaded = _.every(libs, function(lib) {
+    return typeof versions[lib] === "object";
+  });
+
+  if (allVersionsLoaded) {
+    start();
+  }
+}
+
+function start() {
+  lockSelect.removeAttr("disabled");
+  lockSelect.on("change", function(event) {
+    var lib = event.target.value;
+    versionSelect.empty().append(_.map(versions[lib], function(version) {
+      return selectOptionString(lib, version);
+    }).join(' '));
+  });
+
+  versionSelect.removeAttr("disabled");
+  versionSelect.on("change", function(event) {
     var parent = $(previewEl).parent();
     $(previewEl).detach();
     parent.append("<iframe class='js-preview preview'> </iframe>");
@@ -115,13 +139,20 @@ function processGithubTagsResponse(response) {
     onChange(editor, true);
   });
 
-  select.empty().append(_.map(releases, function(x) {
-    return "<option value='" + x.url + "'>" + x.version + "</option>";
-  }).join(' '));
-
-  onChange(editor);
+  lockSelect.trigger("change");
+  versionSelect.trigger("change");
 }
 
-$.getJSON("https://api.github.com/repos/auth0/lock/tags", processGithubTagsResponse);
+function selectOptionString(lib, version) {
+  var url = "//cdn.auth0.com/js/" + lib + "-" + version.slice(1) + ".min.js";
+  return "<option value='" + url + "'>" + version + "</option>";
+}
 
-editor.on('change', _.debounce(onChange, 650));
+_.each(libs, function(lib) {
+  // TODO: replace next line once lock-passwordless repo goes public
+  // $.getJSON("https://api.github.com/repos/auth0/" + lib + "/tags", function(response) {
+  $.getJSON("https://api.github.com/repos/auth0/lock/tags", function(response) {
+    // TODO: handle errors
+    processGithubTagsResponse(lib, response);
+  });
+});

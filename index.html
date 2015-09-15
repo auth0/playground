@@ -20,8 +20,17 @@
         </div>
         <div id="navbar-collapse" class="collapse navbar-collapse">
           <ul class="nav navbar-nav navbar-left">
-            <li class="li-versions"><select class="version-select" disabled><option>Loading versions...</option></select></li>
-
+            <li class="li-locks">
+              <select class="lock-select" disabled>
+                <option value="lock">Lock</option>
+                <option value="lock-passwordless">Lock Passwordless</option>
+              </select>
+            </li>
+            <li class="li-versions">
+              <select class="version-select" disabled>
+                <option>Loading versions...</option>
+              </select>
+            </li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li class="li-docs"><a href="https://auth0.com/support">Help & Support</a></li>
