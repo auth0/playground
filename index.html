@@ -10,7 +10,7 @@
      <link rel="stylesheet" href="index.css" type="text/css" media="all" />
 
   </head>
-  <body class="container-fluid">
+  <body>
   <header class="site-header">
     <nav role="navigation" class="navbar navbar-default">
       <div class="container">
@@ -32,9 +32,15 @@
       </div>
     </nav>
   </header>
-  <div class="row">
-    <div class="col-sm-6 js-editor editor"> </div>
-    <iframe class="col-sm-6 js-preview preview"> </iframe>
+  <div class="main">
+    <div class="pane">
+      <div class="pane-header"><div class="pane-header-title">Editor</div></div>
+      <div class="js-editor editor"> </div>
+    </div>
+    <div class="pane">
+      <div class="pane-header dark"><div class="pane-header-title">Preview</div></div>
+      <iframe class="js-preview preview"> </iframe>
+    </div>
   </div>
     <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/4.5.0/codemirror.min.js"></script>

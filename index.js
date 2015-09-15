@@ -110,7 +110,7 @@ function processGithubTagsResponse(response) {
   select.on("change", function() {
     var parent = $(previewEl).parent();
     $(previewEl).detach();
-    parent.append("<iframe class='col-sm-6 js-preview preview'> </iframe>");
+    parent.append("<iframe class='js-preview preview'> </iframe>");
     previewEl = $('.js-preview').get(0);
     onChange(editor, true);
   });
