@@ -12,12 +12,19 @@ var previewEl = document.querySelector('.js-preview');
 var errored = false;
 var oldCode;
 
-var startTemplate = _.template('var domain = \'contoso.auth0.com\';\nvar cid = \'DyG9nCwIEofSy66QM3oo5xU6NFs3TmvT\';\n\nvar widget = new Auth0Lock(cid, domain);\n\nwidget.show({\n  focusInput: false,\n  popup: true,\n}, function (err, profile, token) {\n  alert(err);\n});');
-
 var scriptTemplate = _.template('<!DOCTYPE html> <html> <head> <title><\/title> <%= scripts %> <\/head> <body><script>window.onerror = function (e, _, line) { parent.postMessage(JSON.stringify({msg: e, line: line}), \'*\'); };<\/script> <script><%= code %><\/script><\/body> <\/html>');
 
 var errorTemplate = _.template('<!DOCTYPE html> <html> <head> <title><\/title> <\/head> <body> <pre><%= error %><\/pre><\/body> <\/html>');
 
+function startTemplateForLib(lib) {
+  var TEMPLATES = {
+    "lock": 'var domain = \'contoso.auth0.com\';\nvar cid = \'DyG9nCwIEofSy66QM3oo5xU6NFs3TmvT\';\n\nvar widget = new Auth0Lock(cid, domain);\n\nwidget.show({\n  focusInput: false,\n  popup: true,\n}, function (err, profile, token) {\n  alert(err);\n});',
+    "lock-passwordless": 'var domain = \'contoso.auth0.com\';\nvar cid = \'DyG9nCwIEofSy66QM3oo5xU6NFs3TmvT\';\n\nvar widget = new Auth0LockPasswordless(cid, domain);\n\nwidget.magiclink({\n  focusInput: false\n}, function (err, email) {\n  alert(err);\n});'
+  };
+
+  var str = TEMPLATES[lib] || "";
+  return _.template(str)({});
+}
 
 var scriptTagTemplate = function (src) {
   return _.template('<script src="<%= src %>"><\/script>')({src: src});
@@ -128,7 +135,7 @@ function start() {
       if (localStorage.code[lib]) {
         editor.setValue(localStorage.code[lib]);
       } else {
-        editor.setValue(startTemplate({}));
+        editor.setValue(startTemplateForLib(lib));
       }
     }
     currentRelease.lib = lib;
