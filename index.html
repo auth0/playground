@@ -12,6 +12,26 @@
   <body class="container-fluid">
   <div class="row">
     <div class="col-sm-6">
+      <nav class="navbar navbar-default row">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">Locker Playground</a>
+          </div>
+          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+              <li id="reset-button" class="active">
+                <button class="btn btn-default navbar-btn btn-danger">Reset</button>
+              </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="active">
+                <span class="label label-default">Ctrl + Enter</span>
+                <button id="preview-button" class="btn btn-default navbar-btn btn-success">Preview</button>
+              </li>
+            <ul>
+          </div>
+        </div>
+      </nav>
       <form>
         <input type="text" class="js-lock-url lock-url" value="//cdn.auth0.com/js/lock-9.2.js" placeholder="Type lock url here" title="Lock URL" />
       </form>
