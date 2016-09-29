@@ -87,5 +87,22 @@ function onChange(instance) {
 
 window.addEventListener('load', function () { onChange(editor); } );
 
-editor.on('change', _.debounce(onChange, 500));
 document.querySelector('.js-lock-url').addEventListener('input', function () { onChange(editor); });
+
+document.querySelector('#reset-button').addEventListener('click', function() {
+  var reset = window.confirm('Are you sure you want to reset the code to the initial state?\nAny change in the code will be lost.');
+  if (reset) {
+    editor.setValue(startTemplate({}));
+    onChange(editor);
+  }
+});
+
+document.querySelector('#preview-button').addEventListener('click', function() {
+  onChange(editor);
+});
+
+window.addEventListener('keypress', function(event) {
+  if ((event.keyCode === 10 || event.keyCode === 13) && event.ctrlKey) {
+    onChange(editor);
+  }
+});

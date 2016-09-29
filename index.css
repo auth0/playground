@@ -20,8 +20,12 @@ iframe {
 }
 
 .lock-url {
-  margin: 15px 5%;
+  margin: 15px 0 5%;
   padding: 5px;
   width: 90%;
   font-family: monospace;
+}
+
+.action-bar {
+  text-align: right;
 }
